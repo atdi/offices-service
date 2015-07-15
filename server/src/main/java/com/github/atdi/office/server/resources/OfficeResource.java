@@ -20,6 +20,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by aurelavramescu on 14/07/15.
@@ -88,7 +94,24 @@ public class OfficeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getOpenOffices() {
-        return Response.ok(officeService.findAll()).build();
+        Iterable<Office> offices = officeService.findAll();
+        Iterator<Office> iterator = offices.iterator();
+        ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        List<Office> openOffices = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Office office = iterator.next();
+            ZonedDateTime openFrom = ZonedDateTime.of(utcNow.toLocalDate(),
+                    office.getOpenFrom(),
+                    ZoneId.of(office.getTimeZone())).withZoneSameInstant(ZoneId.of("UTC"));
+            ZonedDateTime openUntil = ZonedDateTime.of(utcNow.toLocalDate(),
+                    office.getOpenUntil(),
+                    ZoneId.of(office.getTimeZone())).withZoneSameInstant(ZoneId.of("UTC"));
+            if (utcNow.compareTo(openFrom) > 0
+                    && utcNow.compareTo(openUntil) < 0) {
+                openOffices.add(office);
+            }
+        }
+        return Response.ok(openOffices).build();
     }
 
     private Office updateGeoData(@Valid Office office) {

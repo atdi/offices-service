@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.ws.rs.core.Response;
 import java.time.LocalTime;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -130,7 +131,7 @@ public class OfficeResourceTest {
                 .withName("Paris")
                 .withOpenFrom(LocalTime.of(8, 0))
                 .withOpenUntil(LocalTime.of(18, 0))
-                .withTimeZone("Europe/Berlin")
+                .withTimeZone("Europe/Paris")
                 .withLatitude(100d)
                 .withLongitude(100d)
                 .build());
@@ -140,14 +141,57 @@ public class OfficeResourceTest {
         int count = 0;
 
         while(iterator.hasNext()) {
-            iterator.next();
+            Office o = iterator.next();
             count++;
+            officeService.deleteOffice(o.getId());
         }
         assertEquals(2, count);
     }
 
     @Test
     public void testGetOpenOffices() throws Exception {
-
+        officeService.addOffice(new OfficeBuilder()
+                .withCountry("Germany")
+                .withCity("Berlin")
+                .withName("Berlin")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(17, 0))
+                .withTimeZone("Europe/Berlin")
+                .withLatitude(100d)
+                .withLongitude(100d)
+                .build());
+        officeService.addOffice(new OfficeBuilder()
+                .withCountry("France")
+                .withCity("Paris")
+                .withName("Paris")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(17, 0))
+                .withTimeZone("Europe/Paris")
+                .withLatitude(200d)
+                .withLongitude(200d)
+                .build());
+        officeService.addOffice(new OfficeBuilder()
+                .withCountry("USA")
+                .withCity("Los Angeles")
+                .withName("Los Angeles")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(23, 0))
+                .withTimeZone("America/Los_Angeles")
+                .withLatitude(300d)
+                .withLongitude(300d)
+                .build());
+        officeService.addOffice(new OfficeBuilder()
+                .withCountry("USA")
+                .withCity("San Francisco")
+                .withName("San Francisco")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(23, 0))
+                .withTimeZone("America/Los_Angeles")
+                .withLatitude(300d)
+                .withLongitude(300d)
+                .build());
+        Response response = officeResource.getOpenOffices();
+        List<Office> officeList = (List<Office>) response.getEntity();
+        assertEquals(2, officeList.size());
     }
 }
