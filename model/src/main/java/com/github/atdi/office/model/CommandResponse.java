@@ -16,4 +16,6 @@ public class CommandResponse<T> {
     T entity;
 
     int status;
+
+    String error;
 }

@@ -1,5 +1,6 @@
 package com.github.atdi.office.server.config;
 
+import com.github.atdi.office.server.utils.JacksonContextResolver;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.validation.ValidationError;
@@ -21,6 +22,7 @@ public class JerseyConfig extends ResourceConfig {
         property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
         property(ServerProperties.BV_DISABLE_VALIDATE_ON_EXECUTABLE_OVERRIDE_CHECK, true);
         register(ValidationError.class);
+        register(JacksonContextResolver.class);
         packages("com.github.atdi.office.server.resources");
     }
 }

@@ -2,7 +2,6 @@ package com.github.atdi.office.server.commands;
 
 import com.github.atdi.office.model.CommandResponse;
 import com.github.atdi.office.model.CommandResponseBuilder;
-import com.github.atdi.office.server.exceptions.GoogleServiceException;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
@@ -12,8 +11,6 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolKey;
-
-import java.util.TimeZone;
 
 /**
  * Created by aurelavramescu on 15/07/15.
@@ -51,6 +48,8 @@ public class GetLatitudeLongitudeCommand extends HystrixCommand<CommandResponse<
     }
 
     protected CommandResponse<LatLng> getFallback() {
-        throw new GoogleServiceException("Geocode service is not available.");
+        return new CommandResponseBuilder<LatLng>()
+                .withError("Geocode service is not available.")
+                .withStatus(502).build();
     }
 }

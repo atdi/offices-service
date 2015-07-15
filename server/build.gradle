@@ -18,6 +18,16 @@ dependencies {
     compile("com.netflix.hystrix:hystrix-core:${hystrixVersion}")
     compile("com.google.maps:google-maps-services:${googleMapsServiceVersion}")
     compile("com.h2database:h2")
+    compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.4.6')
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("com.google.mockwebserver:mockwebserver:20130706")
+    testCompile("org.testng:testng:6.8.21")
+}
+
+
+test {
+    useJUnit {}
+}
+
+task integrationTest(type: Test) {
+    useTestNG {}
 }

@@ -2,7 +2,6 @@ package com.github.atdi.office.server.commands;
 
 import com.github.atdi.office.model.CommandResponse;
 import com.github.atdi.office.model.CommandResponseBuilder;
-import com.github.atdi.office.server.exceptions.GoogleServiceException;
 import com.google.maps.GeoApiContext;
 import com.google.maps.TimeZoneApi;
 import com.google.maps.model.LatLng;
@@ -45,6 +44,8 @@ public class GetTimeZoneCommand extends HystrixCommand<CommandResponse<String>> 
     }
 
     protected CommandResponse<String> getFallback() {
-        throw new GoogleServiceException("Time zone service is not available.");
+        return new CommandResponseBuilder<String>()
+                .withError("Time zone service is not available.")
+                .withStatus(502).build();
     }
 }

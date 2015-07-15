@@ -46,10 +46,8 @@ public class Office {
     @Column(name = "time_zone")
     String timeZone;
 
-    @NotNull
     double latitude;
 
-    @NotNull
     double longitude;
 
 }
