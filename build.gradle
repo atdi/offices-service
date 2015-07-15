@@ -1,0 +1,49 @@
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.5'
+  distributionUrl = 'http://services.gradle.org/distributions/gradle-2.5-all.zip'
+}
+
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'pmd'
+    apply plugin: 'findbugs'
+
+    repositories {
+        mavenCentral()
+    }
+
+    version = '0.1.0'
+
+    compileJava.options.encoding = 'UTF-8'
+
+    configurations {
+        provided
+        runtime
+    }
+
+    compileJava.classpath += project.configurations.provided
+    compileTestJava.classpath += project.configurations.provided
+
+    idea {
+        module {
+            scopes.PROVIDED.plus += [configurations.provided]
+            scopes.RUNTIME.plus += [configurations.runtime]
+            excludeDirs -= file("$buildDir")
+            project.buildDir.listFiles({ d, f -> f != 'generated' } as FilenameFilter).each
+                    {
+                        excludeDirs += it
+                    }
+            sourceDirs += project.file("$buildDir/generated")
+        }
+    }
+
+    dependencies {
+        provided("org.projectlombok:lombok:$lombokVersion")
+        provided("net.karneim:pojobuilder:$pojoBuilderVersion")
+        testCompile("junit:junit:4.12")
+    }
+
+}

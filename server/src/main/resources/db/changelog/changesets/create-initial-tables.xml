@@ -1,0 +1,48 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+    <changeSet id="initial-tables" author="aurel" dbms="hsqldb,h2,mysql">
+        <comment>Create offices tables</comment>
+        <createTable tableName="offices">
+
+            <column name="id" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(50)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="country" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="city" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="open_from" type="time">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="open_until" type="time">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time_zone" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="longitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
