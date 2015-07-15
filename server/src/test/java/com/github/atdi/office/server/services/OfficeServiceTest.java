@@ -3,6 +3,7 @@ package com.github.atdi.office.server.services;
 import com.github.atdi.office.model.Office;
 import com.github.atdi.office.model.OfficeBuilder;
 import com.github.atdi.office.server.Bootstrap;
+import com.github.atdi.office.server.services.repositories.OfficeRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,9 @@ public class OfficeServiceTest {
     @Autowired
     private OfficeService officeService;
 
-    private String lastInsertedId;
+    @Autowired
+    OfficeRepository officeRepository;
+
 
     @Before
     public void setUp() throws Exception {
@@ -34,10 +37,7 @@ public class OfficeServiceTest {
 
     @After
     public void tearDown() throws Exception {
-        if (null != lastInsertedId) {
-            officeService.deleteOffice(lastInsertedId);
-        }
-        lastInsertedId = null;
+        officeRepository.deleteAll();
     }
 
     @Test
@@ -53,7 +53,6 @@ public class OfficeServiceTest {
         Office result = officeService.addOffice(office);
         assertNotNull(result.getId());
         assertEquals(LocalTime.of(8, 0), result.getOpenFrom());
-        lastInsertedId = result.getId();
     }
 
     @Test
@@ -70,12 +69,6 @@ public class OfficeServiceTest {
         office = new OfficeBuilder().copy(result).withName("Berlin2").build();
         result = officeService.updateOffice(office);
         assertEquals("Berlin2", result.getName());
-        lastInsertedId = result.getId();
-    }
-
-    @Test
-    public void testFindOffice() throws Exception {
-
     }
 
 }

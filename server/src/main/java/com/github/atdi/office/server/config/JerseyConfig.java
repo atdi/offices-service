@@ -1,5 +1,6 @@
 package com.github.atdi.office.server.config;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.github.atdi.office.server.utils.JacksonContextResolver;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -22,6 +23,7 @@ public class JerseyConfig extends ResourceConfig {
         property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
         property(ServerProperties.BV_DISABLE_VALIDATE_ON_EXECUTABLE_OVERRIDE_CHECK, true);
         register(ValidationError.class);
+        register(JacksonJaxbJsonProvider.class);
         register(JacksonContextResolver.class);
         packages("com.github.atdi.office.server.resources");
     }

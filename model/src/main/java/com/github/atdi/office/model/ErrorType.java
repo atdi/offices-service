@@ -7,5 +7,7 @@ public enum ErrorType {
 
     DB_ERROR,
 
+    NOT_FOUND_ERROR,
+
     GOOGLE_SERVICE_ERROR
 }

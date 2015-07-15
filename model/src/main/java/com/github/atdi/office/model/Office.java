@@ -27,6 +27,7 @@ public class Office {
     String id;
 
     @NotNull
+    @Column(unique = true)
     String name;
 
     @NotNull

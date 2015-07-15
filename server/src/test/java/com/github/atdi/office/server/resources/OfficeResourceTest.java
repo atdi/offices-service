@@ -4,21 +4,25 @@ import com.github.atdi.office.model.Office;
 import com.github.atdi.office.model.OfficeBuilder;
 import com.github.atdi.office.server.Bootstrap;
 import com.github.atdi.office.server.config.DefaultConfigTest;
-import com.github.atdi.office.server.services.GoogleMapsService;
+import com.github.atdi.office.server.exceptions.DuplicateOfficeException;
+import com.github.atdi.office.server.exceptions.OfficeNotFoundException;
 import com.github.atdi.office.server.services.OfficeService;
+import com.github.atdi.office.server.services.repositories.OfficeRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionSystemException;
 
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -33,9 +37,10 @@ public class OfficeResourceTest {
     OfficeResource officeResource;
 
     @Autowired
-    OfficeService officeService;
+    OfficeRepository officeRepository;
 
-    String lastInsertedId;
+    @Autowired
+    OfficeService officeService;
 
     @Before
     public void setUp() throws Exception {
@@ -44,10 +49,7 @@ public class OfficeResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        if (null != lastInsertedId) {
-            officeService.deleteOffice(lastInsertedId);
-        }
-        lastInsertedId = null;
+        officeRepository.deleteAll();
     }
 
     @Test
@@ -65,7 +67,29 @@ public class OfficeResourceTest {
         assertEquals("Europe/Berlin", result.getTimeZone());
         assertEquals(100d, result.getLatitude(), 0d);
         assertEquals(100d, result.getLongitude(), 0d);
-        lastInsertedId = result.getId();
+    }
+
+    @Test(expected = TransactionSystemException.class)
+    public void testAddOfficeValidationFailed() throws Exception {
+        Office office = new OfficeBuilder()
+                .withCountry("Germany")
+                .withCity("Berlin")
+                .withName("Berlin")
+                .build();
+        Response response = officeResource.addOffice(office);
+    }
+
+    @Test(expected = DuplicateOfficeException.class)
+    public void testAddOfficeConflict() throws Exception {
+        Office office = new OfficeBuilder()
+                .withCountry("Germany")
+                .withCity("Berlin")
+                .withName("Berlin")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(18, 0))
+                .build();
+        officeService.addOffice(office);
+        officeResource.addOffice(office);
     }
 
     @Test
@@ -88,7 +112,44 @@ public class OfficeResourceTest {
         assertEquals("Europe/Paris", result1.getTimeZone());
         assertEquals(200d, result1.getLatitude(), 0d);
         assertEquals(200d, result1.getLongitude(), 0d);
-        lastInsertedId = result1.getId();
+    }
+
+    @Test(expected = OfficeNotFoundException.class)
+    public void testUpdateOfficeNotFound() throws Exception {
+        String id = UUID.randomUUID().toString();
+        Office office = new OfficeBuilder()
+                .withId(id)
+                .withCountry("Germany")
+                .withCity("Berlin")
+                .withName("Berlin")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(18, 0))
+                .build();
+        officeResource.updateOffice(office.getId(), office);
+    }
+
+    @Test(expected = DuplicateOfficeException.class)
+    public void testUpdateOfficeWithConflict() throws Exception {
+        Office office = new OfficeBuilder()
+                .withCountry("Germany")
+                .withCity("Berlin")
+                .withName("Berlin")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(18, 0))
+                .build();
+        Office result = officeService.addOffice(office);
+        officeService.addOffice(new OfficeBuilder()
+                .withCountry("France")
+                .withCity("Paris")
+                .withName("Paris")
+                .withOpenFrom(LocalTime.of(8, 0))
+                .withOpenUntil(LocalTime.of(18, 0))
+                .build());
+        Office officeUpdated = new OfficeBuilder().copy(result).withName("Paris")
+                .withCountry("France")
+                .withCity("Paris")
+                .build();
+        Response response = officeResource.updateOffice(result.getId(), officeUpdated);
     }
 
     @Test
@@ -109,8 +170,6 @@ public class OfficeResourceTest {
         assertEquals("Europe/Berlin", result.getTimeZone());
         assertEquals(100d, result.getLatitude(), 0d);
         assertEquals(100d, result.getLongitude(), 0d);
-        lastInsertedId = result.getId();
-
     }
 
     @Test
@@ -143,7 +202,6 @@ public class OfficeResourceTest {
         while(iterator.hasNext()) {
             Office o = iterator.next();
             count++;
-            officeService.deleteOffice(o.getId());
         }
         assertEquals(2, count);
     }

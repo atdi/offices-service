@@ -2,16 +2,18 @@ package com.github.atdi.office.server.resources;
 
 import com.github.atdi.office.model.Office;
 import com.github.atdi.office.model.OfficeBuilder;
+import com.github.atdi.office.server.exceptions.DuplicateOfficeException;
+import com.github.atdi.office.server.exceptions.OfficeNotFoundException;
 import com.github.atdi.office.server.services.GoogleMapsService;
 import com.github.atdi.office.server.services.OfficeService;
 import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -20,7 +22,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -49,9 +50,13 @@ public class OfficeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addOffice(@Valid Office office) {
-        Office result = officeService.addOffice(updateGeoData(office));
-        return Response.created(URI.create("api/office/" + result.getId()))
-                .entity(result).build();
+        try {
+            Office result = officeService.addOffice(updateGeoData(office));
+            return Response.created(URI.create("api/office/" + result.getId()))
+                    .entity(result).build();
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateOfficeException(e.getMessage());
+        }
     }
 
 
@@ -63,11 +68,17 @@ public class OfficeResource {
             @PathParam("id") String id,
             @Valid Office office) {
         Office result = officeService.findOffice(id);
+
         if (result == null) {
-            throw new NotFoundException(String.format("Entity with id %s not found!", id));
+            throw new OfficeNotFoundException(String.format("Entity with id %s not found!", id));
         }
-        result = officeService.updateOffice(updateGeoData(office));
-        return Response.ok(result).build();
+
+        try {
+            result = officeService.updateOffice(updateGeoData(office));
+            return Response.ok(result).build();
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateOfficeException(e.getMessage());
+        }
     }
 
     @GET
@@ -78,7 +89,7 @@ public class OfficeResource {
             @PathParam("id") String id) {
         Office result = officeService.findOffice(id);
         if (result == null) {
-            throw new NotFoundException(String.format("Entity with id %s not found!", id));
+            throw new OfficeNotFoundException(String.format("Entity with id %s not found!", id));
         }
         return Response.ok(result).build();
     }
