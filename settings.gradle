@@ -1,5 +1,5 @@
 rootProject.name = 'offices-service'
 include 'server'
 include 'model'
-include 'client'
+
 
