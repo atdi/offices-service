@@ -11,6 +11,9 @@ subprojects {
     apply plugin: 'pmd'
     apply plugin: 'findbugs'
 
+    tasks.findbugsTest.enabled = false
+    tasks.pmdTest.enabled = false
+
     repositories {
         mavenCentral()
     }
