@@ -1,10 +1,10 @@
-### Run the project ### 
+## Run the project ## 
 
 ./gradlew bootRun
 
-### End points ###
+## End points ##
 
-## Add a new office ##
+### Add a new office ###
 
 POST /api/office
 
@@ -24,17 +24,17 @@ Json example:
   ]
 }
 
-## Modify an office ##
+### Modify an office ###
 PUT /api/office/{id}
 
-## Get an office ##
+### Get an office ###
 GET /api/office/{id}
 
-## Get all offices ##
+### Get all offices ###
 GET /api/office
 
-## Get open offices ##
+### Get open offices ###
 GET /api/office/open
 
-## Get shortest route ##
+### Get shortest route ###
 GET /api/office/route
