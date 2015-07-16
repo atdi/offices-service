@@ -1,4 +1,4 @@
-## Run the project ## 
+## Run the project ##
 
 ./gradlew bootRun
 
